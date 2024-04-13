@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from environs import Env
+from sqlalchemy.engine.url import URL
 
 
 @dataclass
@@ -35,8 +36,6 @@ class DbConfig:
         """
         Constructs and returns a SQLAlchemy URL for this database configuration.
         """
-        # TODO: If you're using SQLAlchemy, move the import to the top of the file!
-        from sqlalchemy.engine.url import URL
 
         if not host:
             host = self.host
@@ -103,9 +102,9 @@ class RedisConfig:
         The host where Redis server is located.
     """
 
-    redis_pass: Optional[str]
     redis_port: Optional[int]
     redis_host: Optional[str]
+    redis_pass: Optional[str] = None
 
     def dsn(self) -> str:
         """
@@ -160,16 +159,16 @@ class Config:
         Holds the settings related to the Telegram Bot.
     misc : Miscellaneous
         Holds the values for miscellaneous settings.
-    db : Optional[DbConfig]
+    db : DbConfig
         Holds the settings specific to the database (default is None).
-    redis : Optional[RedisConfig]
+    redis : RedisConfig
         Holds the settings specific to Redis (default is None).
     """
 
     tg_bot: TgBot
     misc: Miscellaneous
-    db: Optional[DbConfig] = None
-    redis: Optional[RedisConfig] = None
+    redis: RedisConfig
+    db: DbConfig
 
 
 def load_config(path: str = None) -> Config:
@@ -187,7 +186,7 @@ def load_config(path: str = None) -> Config:
 
     return Config(
         tg_bot=TgBot.from_env(env),
-        # db=DbConfig.from_env(env),
-        # redis=RedisConfig.from_env(env),
+        db=DbConfig.from_env(env),
+        redis=RedisConfig.from_env(env),
         misc=Miscellaneous(),
     )

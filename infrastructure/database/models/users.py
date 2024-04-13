@@ -1,40 +1,27 @@
 from typing import Optional
 
-from sqlalchemy import String
-from sqlalchemy import text, BIGINT, Boolean, true
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Integer, BigInteger, String
+from sqlalchemy.orm import mapped_column, Mapped
+from typing_extensions import Annotated
 
-from .base import Base, TimestampMixin, TableNameMixin
+from .base import TimestampMixin, TableNameMixin, Base
+
+str_255 = Annotated[str, mapped_column(String(255), nullable=True)]
 
 
-class User(Base, TimestampMixin, TableNameMixin):
-    """
-    This class represents a User in the application.
-    If you want to learn more about SQLAlchemy and Alembic, you can check out the following link to my course:
-    https://www.udemy.com/course/sqlalchemy-alembic-bootcamp/?referralCode=E9099C5B5109EB747126
-
-    Attributes:
-        user_id (Mapped[int]): The unique identifier of the user.
-        username (Mapped[Optional[str]]): The username of the user.
-        full_name (Mapped[str]): The full name of the user.
-        active (Mapped[bool]): Indicates whether the user is active or not.
-        language (Mapped[str]): The language preference of the user.
-
-    Methods:
-        __repr__(): Returns a string representation of the User object.
-
-    Inherited Attributes:
-        Inherits from Base, TimestampMixin, and TableNameMixin classes, which provide additional attributes and functionality.
-
-    Inherited Methods:
-        Inherits methods from Base, TimestampMixin, and TableNameMixin classes, which provide additional functionality.
-
-    """
-    user_id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=False)
-    username: Mapped[Optional[str]] = mapped_column(String(128))
-    full_name: Mapped[str] = mapped_column(String(128))
-    active: Mapped[bool] = mapped_column(Boolean, server_default=true())
-    language: Mapped[str] = mapped_column(String(10), server_default=text("'en'"))
+class BotUser(Base, TimestampMixin, TableNameMixin):
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    ChatID: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, index=True, unique=True
+    )
+    Name: Mapped[Optional[str_255]]
+    Lastname: Mapped[Optional[str_255]]
+    Username: Mapped[Optional[str_255]]
+    ReferralCode: Mapped[int] = mapped_column(BigInteger, nullable=True)
+    ReferredBy: Mapped[int] = mapped_column(BigInteger, nullable=True)
+    ReferralCount: Mapped[int] = mapped_column(Integer, default=0)
+    ReferralLink: Mapped[str_255]
+    PrefLanguage: Mapped[str_255]
 
     def __repr__(self):
-        return f"<User {self.user_id} {self.username} {self.full_name}>"
+        return f"<User {self.id} {self.ChatID} {self.Username}>"
