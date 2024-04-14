@@ -29,7 +29,6 @@ async def default_callback_query(
     # Extract relevant data from the callback query
     callback_data = call.data
     chat_id = call.message.chat.id
-
     # Check if the received callback_data matches any menu defined in menu_structure
     if callback_data in menu_structure:
         # Generate the appropriate markup and text for the menu corresponding to callback_data

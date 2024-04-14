@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from sqlalchemy import select, update
+from sqlalchemy import update
 from sqlalchemy.dialects.postgresql import insert
 
 from infrastructure.database.models import BotUser
@@ -69,18 +69,7 @@ class UserRepo(BaseRepo):
         await self.session.commit()
         return result.scalar_one()
 
-    async def check_user_exists(self, chat_id: int) -> bool:
-        """
-        Checks if a user exists in the database by chat_id.
-        :param chat_id: The user's ID to check.
-        :return: True if user exists, otherwise False.
-        """
-        query = select(BotUser).where(BotUser.ChatID == chat_id)
-        result = await self.session.execute(query)
-        user = result.scalar_one_or_none()
-        return user is not None
-
-    async def update_referrer_data(self, referrer_chat_id: int):
+    async def update_referral_count(self, referrer_chat_id: int):
         try:
             # Start a transaction explicitly to handle multistep operations safely
             async with self.session.begin():
@@ -113,7 +102,7 @@ class UserRepo(BaseRepo):
             )
             raise  # Optionally re-raise the exception to signal the error to caller functions
 
-    async def update_user_referrer(self, chat_id: int, referrer_chat_id: int):
+    async def update_referred_by(self, chat_id: int, referrer_chat_id: int):
         try:
             stmt = (
                 update(BotUser)

@@ -38,9 +38,9 @@ async def user_start(
         )
 
         if referrer_chat_id and not user.ReferredBy:
-            # If the user has a referrer and it's not already set
-            await repo.users.update_user_referrer(chat_id, int(referrer_chat_id))
-            await repo.users.update_referrer_data(int(referrer_chat_id))
+            # If the user has a referrer, and it's not already set
+            await repo.users.update_referred_by(chat_id, int(referrer_chat_id))
+            await repo.users.update_referral_count(int(referrer_chat_id))
             logging.info(
                 f"Referrer {referrer_chat_id} updated for new user Chat-id {chat_id}."
             )
@@ -49,3 +49,5 @@ async def user_start(
         await message.answer(text=text, reply_markup=markup)
     except UnicodeDecodeError:
         logging.error("Codec can't decode command args - Invalid start byte")
+    except Exception as e:
+        logging.error(f"An unknown error occurred.\n Error: {e}")
