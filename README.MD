@@ -3,10 +3,6 @@ This template is used to develop Telegram bots using the Aiogram V3.0+ Library.
 ## SQLAlchemy + Alembic
 The code includes examples of a User table using SQLAlchemy 2.0, and scripts for Alembic (Alembic initialization, creating and applying migrations).
 
-However, if you have never worked with these tools before, please refer to the documentation and learn about them. Also, I offer an English [course on these tools at Udemy](https://www.udemy.com/course/sqlalchemy-alembic-bootcamp/?referralCode=E9099C5B5109EB747126).
-
-![img.png](https://img-c.udemycdn.com/course/240x135/5320614_a8af_2.jpg)
-
 ### To start using:
 1. Copy `.env.dist` to `.env` and fill in the necessary data.
 2. Create new handlers.
@@ -29,63 +25,50 @@ user_router = Router()
 Multiple routers can be made in one module, and handlers can be attached to each.
 Handlers can be registered using decorators:
 
-python
-
+```python
 @user_router.message(commands=["start"])
 async def user_start(message):
     await message.reply("Welcome, regular user!")
-
+```
 Enter the file handlers/__init__.py and add all routers to it:
 
-python
-
+```python
 from .admin import admin_router
 from .echo import echo_router
 from .user import user_router
 
-...
 
 routers_list = [
     admin_router,
     user_router,
     echo_router,  # echo_router must be last
 ]
-
+```
 How to add handlers to our bot:
 
 Go to the file bot.py and unpack our handlers:
 
-python
-
+```python
 from tgbot.handlers import routers_list
-
-...
 
 async def main():
    
-...
-
    dp.include_routers(*routers_list)
 
-...
+```
 
-How to start the Database and conduct your first migration:
+### How to start the Database and conduct your first migration:
 
-    Go to the .env file and fill in the database details if you have not done so earlier.
+1. Go to the .env file and fill in the database details if you have not done so earlier.
 
-    Go to the file docker-compose.yml and uncomment sections: api, pg_database, and volumes to begin work.
+2. Go to the file docker-compose.yml and uncomment sections: api, pg_database, and volumes to begin work.
 
-    Go to config.py and complete the TODO in the function construct_sqlalchemy_url. Also, find the section of the function load_config and uncomment the line that corresponds to the database configuration initialization db=DbConfig.from_env(env) to activate the database connection.
+3. Go to `config.py` and complete the `TODO` in the function `construct_sqlalchemy_url`. Also, find the section of the function `load_config` and uncomment the line that corresponds to the database configuration initialization `db=DbConfig.from_env(env)` to activate the database connection.
 
-    Now we can restart Docker with new containers using the command:
+4. Now we can restart Docker with new containers using the command:
 
-    docker-compose up --build.
+    `docker-compose up --build.`
 
-    All set! Now we can conduct the migration!
-    Open the terminal and enter the following command:
+5. All set! Now we can conduct the migration! Open the terminal and enter the following command:
 
-    docker-compose exec api alembic upgrade head
-
-Tutorials on aiogram v3
-
-There are no videos yet, but @Groosha has already started making his own tutorial.
+    `docker-compose exec api alembic upgrade head`
