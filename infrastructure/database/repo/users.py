@@ -15,57 +15,45 @@ class UserRepo(BaseRepo):
         name: Optional[str] = None,
         last_name: Optional[str] = None,
         username: Optional[str] = None,
-        referral_code: int = None,
-        referred_by: int = None,
+        referral_code: Optional[int] = None,
+        referred_by: Optional[int] = None,
         referral_count: int = 0,
-        referral_link: str = None,
-        pref_language: str = "en",
+        referral_link: Optional[str] = None,
+        pref_language: Optional[str] = None,
     ):
         """
         Creates or updates a new user in the database and returns the user object.
-        :param chat_id: The user's ID.
-        :param name: The user's full name.
-        :param last_name: The user's language.
-        :param username: The user's username. It's an optional parameter.
-        :param referral_code: The user's referral code.
-        :param referred_by: Chat id of the referrer.
-        :param referral_count: Number of user's referral
-        :param referral_link: The User's referral link
-        :param pref_language: The user's selected language
-        :return: User object, None if there was an error while making a transaction.
+        Only fields provided as parameters will be updated in the case of a conflict.
         """
+
+        values_dict = {
+            "ChatID": chat_id,
+            "Name": name,
+            "Lastname": last_name,
+            "Username": username,
+            "ReferralCode": referral_code,
+            "ReferredBy": referred_by,
+            "ReferralCount": referral_count,
+            "ReferralLink": referral_link,
+            "PrefLanguage": pref_language,
+        }
+
+        # Remove None values to avoid nullifying columns in the database
+        values_dict = {
+            key: value for key, value in values_dict.items() if value is not None
+        }
 
         insert_stmt = (
             insert(BotUser)
-            .values(
-                ChatID=chat_id,
-                Name=username,
-                Lastname=name,
-                Username=last_name,
-                ReferralCode=referral_code,
-                ReferredBy=referred_by,
-                ReferralCount=referral_count,
-                ReferralLink=referral_link,
-                PrefLanguage=pref_language,
-            )
+            .values(**values_dict)
             .on_conflict_do_update(
                 index_elements=[BotUser.ChatID],
-                set_=dict(
-                    ChatID=chat_id,
-                    Name=username,
-                    Lastname=name,
-                    Username=last_name,
-                    ReferralCode=referral_code,
-                    ReferredBy=referred_by,
-                    ReferralCount=referral_count,
-                    ReferralLink=referral_link,
-                    PrefLanguage=pref_language,
-                ),
+                set_={key: values_dict[key] for key in values_dict if key != "ChatID"},
             )
             .returning(BotUser)
         )
-        result = await self.session.execute(insert_stmt)
 
+        result = await self.session.execute(insert_stmt)
         await self.session.commit()
         return result.scalar_one()
 
