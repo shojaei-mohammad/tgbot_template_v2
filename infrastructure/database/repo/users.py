@@ -3,6 +3,7 @@ from typing import Optional
 
 from sqlalchemy import update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.exc import SQLAlchemyError
 
 from infrastructure.database.models import BotUser
 from infrastructure.database.repo.base import BaseRepo
@@ -43,19 +44,34 @@ class UserRepo(BaseRepo):
             key: value for key, value in values_dict.items() if value is not None
         }
 
-        insert_stmt = (
-            insert(BotUser)
-            .values(**values_dict)
-            .on_conflict_do_update(
-                index_elements=[BotUser.ChatID],
-                set_={key: values_dict[key] for key in values_dict if key != "ChatID"},
+        try:
+            insert_stmt = (
+                insert(BotUser)
+                .values(**values_dict)
+                .on_conflict_do_update(
+                    index_elements=[BotUser.ChatID],
+                    set_={
+                        key: values_dict[key] for key in values_dict if key != "ChatID"
+                    },
+                )
+                .returning(BotUser)
             )
-            .returning(BotUser)
-        )
 
-        result = await self.session.execute(insert_stmt)
-        await self.session.commit()
-        return result.scalar_one()
+            result = await self.session.execute(insert_stmt)
+            await self.session.commit()
+            return result.scalar_one()
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            # Log the error or re-raise with additional information if necessary
+            logging.error(f"Failed to insert or update user: {e}")
+            raise Exception("Failed to insert or update user in the database.") from e
+        except Exception as e:
+            await self.session.rollback()
+            # Handle other exceptions, possibly re-raise
+            logging.error(f"An unexpected error occurred: {e}")
+            raise Exception(
+                "An unexpected error occurred during database operations."
+            ) from e
 
     async def update_referral_count(self, referrer_chat_id: int):
         try:
@@ -88,7 +104,9 @@ class UserRepo(BaseRepo):
             logging.error(
                 f"Failed to update referrer data for ChatID {referrer_chat_id}: {e}"
             )
-            raise  # Optionally re-raise the exception to signal the error to caller functions
+            raise Exception(
+                "An unexpected error occurred during database operations."
+            ) from e
 
     async def update_referred_by(self, chat_id: int, referrer_chat_id: int):
         try:
