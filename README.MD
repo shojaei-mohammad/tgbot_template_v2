@@ -1,3 +1,4 @@
+
 This template is used to develop Telegram bots using the Aiogram V3.0+ Library.
 
 ## SQLAlchemy + Alembic
@@ -72,3 +73,7 @@ async def main():
 5. All set! Now we can conduct the migration! Open the terminal and enter the following command:
 
     `docker-compose exec api alembic upgrade head`
+
+## A Special Thanks to
+
+- [Latand](https://github.com/Latand)
