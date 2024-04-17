@@ -14,7 +14,7 @@ class ConfigMiddleware(BaseMiddleware):
     to access configuration settings easily.
 
     Parameters:
-        config (Dict): A dictionary containing configuration settings for the bot.
+        config (Config): A config class containing configuration settings for the bot.
 
     Usage:
         Add this middleware to the dispatcher of an aiogram bot to make `config`
@@ -26,7 +26,7 @@ class ConfigMiddleware(BaseMiddleware):
         Initializes the middleware with a configuration dictionary.
 
         Args:
-            config (Dict): A configuration dictionary to be injected into message handlers.
+            config (Config): A configuration class to be injected into message handlers.
         """
         self.config = config
 
