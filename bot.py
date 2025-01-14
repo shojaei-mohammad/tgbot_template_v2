@@ -97,7 +97,7 @@ async def main():
     storage = get_storage(config)
 
     default = DefaultBotProperties(parse_mode=ParseMode.HTML)
-    bot = Bot(token=config.tg_bot.token, default=default)
+    bot = Bot(token=config.tg_bot.token.get_secret_value(), default=default)
     dp = Dispatcher(storage=storage)
 
     dp.include_routers(*routers_list)
