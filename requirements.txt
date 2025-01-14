@@ -1,11 +1,10 @@
-aiogram==3.4.1
-environs~=9.0
+aiogram
+environs
 redis
 betterlogging
+pydantic
+pydantic-settings
 
-# # For implementing api:
-#fastapi
-#uvicorn
 
 # # For PostgreSQL sqlalchemy + alembic:
 sqlalchemy
